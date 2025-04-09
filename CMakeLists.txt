@@ -235,7 +235,7 @@ endif ()
 
 target_link_libraries(_CuraEngine
         PUBLIC
-        spdlog::spdlog
+        spdlog::spdlog -pthread
         range-v3::range-v3
         fmt::fmt
         clipper::clipper
@@ -281,17 +281,20 @@ endif ()
 
 if (CMAKE_CXX_PLATFORM_ID STREQUAL "emscripten")
     message(STATUS "Building for Emscripten")
+    target_compile_options(_CuraEngine PUBLIC -pthread)
     target_link_options(_CuraEngine
             PUBLIC
             "SHELL:-sINVOKE_RUN=0"
             "SHELL:-sEXPORT_NAME=CuraEngine"
             "SHELL:-sEXPORTED_RUNTIME_METHODS=[callMain,FS]"
+            "SHELL:-sUSE_PTHREADS=1"
+            "SHELL:-sPTHREAD_POOL_SIZE=8"
             "SHELL:-sFORCE_FILESYSTEM=1"
             "SHELL:-sALLOW_MEMORY_GROWTH=1"
             "SHELL:-sEXPORT_ES6=1"
             "SHELL:-sMODULARIZE=1"
             "SHELL:-sSINGLE_FILE=1"
-            "SHELL:-sENVIRONMENT=web"
+            "SHELL:-sENVIRONMENT=worker"
             "SHELL:-sERROR_ON_UNDEFINED_SYMBOLS=0"
             "SHELL:-sWASM_BIGINT=1"
             "SHELL:-sSTACK_SIZE=196608"
@@ -304,6 +307,7 @@ if (CMAKE_CXX_PLATFORM_ID STREQUAL "emscripten")
             $<$<CONFIG:Debug>:SHELL:-gsource-map>
             "SHELL:-lembind"
             "SHELL:--embind-emit-tsd CuraEngine.d.ts"
+            "SHELL:-pthread"
     )
 endif ()
 

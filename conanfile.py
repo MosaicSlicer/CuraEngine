@@ -152,7 +152,15 @@ class CuraEngineConan(ConanFile):
         tc.variables["EXTENSIVE_WARNINGS"] = self.options.enable_extensive_warnings
         tc.variables["OLDER_APPLE_CLANG"] = self.settings.compiler == "apple-clang" and Version(
             self.settings.compiler.version) < "14"
-        tc.variables["ENABLE_THREADING"] = not (self.settings.arch == "wasm" and self.settings.os == "Emscripten")
+        # tc.variables["ENABLE_THREADING"] = not (self.settings.arch == "wasm" and self.settings.os == "Emscripten")
+        tc.variables["ENABLE_THREADING"] = True
+
+        tc.cache_variables["CMAKE_C_FLAGS_INIT"] = "-pthread"
+        tc.cache_variables["CMAKE_CXX_FLAGS_INIT"] = "-pthread"
+        tc.cache_variables["CMAKE_C_FLAGS"] = "-pthread"
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = "-pthread"
+        tc.cache_variables["CMAKE_EXE_LINKER_FLAGS"] = "-sUSE_PTHREADS=1 -sENVIRONMENT=worker"
+
         if self.options.enable_plugins:
             tc.variables["ENABLE_PLUGINS"] = True
             tc.variables["ENABLE_REMOTE_PLUGINS"] = self.options.enable_remote_plugins

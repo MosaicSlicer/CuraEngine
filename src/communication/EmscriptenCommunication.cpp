@@ -47,14 +47,16 @@ EmscriptenCommunication::EmscriptenCommunication(const std::vector<std::string>&
 void EmscriptenCommunication::sendGCodePrefix(const std::string& prefix) const
 {
     EM_ASM({
-        globalThis[UTF8ToString($0)](UTF8ToString($1))
+        // globalThis[UTF8ToString($0)](UTF8ToString($1))
+        bc_channel.postMessage({callback: UTF8ToString($0), data: UTF8ToString($1)})
     }, gcode_header_handler_.c_str(), prefix.c_str());
 }
 
 void EmscriptenCommunication::sendProgress(double progress) const
 {
     EM_ASM({
-        globalThis[UTF8ToString($0)]($1)
+        // globalThis[UTF8ToString($0)]($1)
+        bc_channel.postMessage({callback: UTF8ToString($0), data: $1})
     }, progress_handler_.c_str(), progress);
 }
 
@@ -145,7 +147,8 @@ void EmscriptenCommunication::beginGCode()
 {
     auto engine_info = createEngineInfoMessage();
      EM_ASM({
-        globalThis[UTF8ToString($0)](JSON.parse(UTF8ToString($1)))
+        // globalThis[UTF8ToString($0)](JSON.parse(UTF8ToString($1)))
+        bc_channel.postMessage({callback: UTF8ToString($0), data: JSON.parse(UTF8ToString($1))})
     }, engine_info_handler_.c_str(), engine_info.c_str());
 }
 void EmscriptenCommunication::sliceNext()
@@ -153,7 +156,8 @@ void EmscriptenCommunication::sliceNext()
     CommandLine::sliceNext();
     auto slice_info = createSliceInfoMessage();
     EM_ASM({
-        globalThis[UTF8ToString($0)](JSON.parse(UTF8ToString($1)))
+        // globalThis[UTF8ToString($0)](JSON.parse(UTF8ToString($1)))
+        bc_channel.postMessage({callback: UTF8ToString($0), data: JSON.parse(UTF8ToString($1))})
     }, slice_info_handler_.c_str(), slice_info.c_str());
 };
 
